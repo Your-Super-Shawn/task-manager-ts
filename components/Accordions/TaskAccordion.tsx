@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import {
   Accordion,
   AccordionSummary,
@@ -21,9 +21,15 @@ const TaskAccordion: React.FC<TaskAccordionProps> = ({
   tasks,
   onEdit,
 }) => {
+  const [taskList, setTaskList] = useState<Task[]>(tasks);
+
+  useEffect(() => {
+    setTaskList(tasks);
+  }, [tasks]);
+
   return (
     <Accordion
-      defaultExpanded
+      defaultExpanded={taskList.length > 0}
       sx={{
         backgroundColor: "#1e1e1e",
         color: "#ffffff",

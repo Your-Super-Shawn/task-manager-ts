@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import type { Task } from "@/types/task.data";
+import dayjs from "dayjs";
 
 interface TaskCardProps {
   task: Task;
@@ -37,7 +38,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
           flexGrow: 1,
           cursor: "pointer",
           padding: "12px",
-          paddingBottom: 0,
+          paddingTop: 3,
         }}
         onClick={() => onEdit(task)}
       >
@@ -90,7 +91,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
             justifyContent: "flex-start",
           }}
         >
-          {task.dueDate || "No due date"}
+          {dayjs(task.dueDate).format("DD/MM/YYYY") || "No due date"}
         </Button>
 
         {/* Due Date */}
