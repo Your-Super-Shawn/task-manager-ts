@@ -3,60 +3,98 @@ import {
   Card,
   CardContent,
   Typography,
-  CardActions,
+  Divider,
   Button,
   Box,
+  CardActions,
 } from "@mui/material";
+import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import type { Task } from "@/types/task.data";
 
 interface TaskCardProps {
   task: Task;
   onEdit: (task: Task) => void;
-  onDelete: (task: Task) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
   return (
     <Card
       variant="outlined"
       sx={{
-        margin: 1,
+        display: "flex",
+        alignItems: "center",
+        margin: "8px",
         backgroundColor: "#1e1e1e",
         color: "#ffffff",
-        cursor: "pointer",
         ":hover": {
           boxShadow: "0 4px 12px rgba(255, 255, 255, 0.2)",
         },
+        paddingBottom: "-10px",
       }}
-      onClick={() => onEdit(task)} // Click event handler
     >
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          {task.title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {task.description || "No description"}
-        </Typography>
-        <Typography variant="caption" display="block" color="text.secondary">
-          Due:{" "}
-          {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "N/A"}
-        </Typography>
-        <Typography variant="caption" color="primary">
-          Status: {task.status}
-        </Typography>
-      </CardContent>
-      <CardActions>
-        <Button
-          size="small"
-          color="error"
-          onClick={(e) => {
-            e.stopPropagation(); // Prevent card click event
-            onDelete(task);
+      <CardContent
+        sx={{
+          flexGrow: 1,
+          cursor: "pointer",
+          padding: "12px",
+          paddingBottom: 0,
+        }}
+        onClick={() => onEdit(task)}
+      >
+        {/* Title */}
+        <Typography
+          gutterBottom
+          sx={{
+            overflow: "hidden",
+            display: "-webkit-box",
+            WebkitBoxOrient: "vertical",
+            WebkitLineClamp: 1,
+            textOverflow: "ellipsis",
+            fontWeight: 600,
+            fontSize: 13,
           }}
         >
-          Delete
+          {task.title}
+        </Typography>
+
+        {/* Description */}
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            overflow: "hidden",
+            display: "-webkit-box",
+            WebkitBoxOrient: "vertical",
+            WebkitLineClamp: 3,
+            textOverflow: "ellipsis",
+            fontSize: 11,
+          }}
+        >
+          {task.description || "(No description)"}
+        </Typography>
+
+        {/* Divider */}
+        <Divider
+          sx={{
+            marginY: 1,
+          }}
+        />
+
+        <Button
+          size="small"
+          variant="text"
+          color="inherit"
+          startIcon={<CalendarMonthRoundedIcon />}
+          sx={{
+            padding: 0,
+            justifyContent: "flex-start",
+          }}
+        >
+          {task.dueDate || "No due date"}
         </Button>
-      </CardActions>
+
+        {/* Due Date */}
+      </CardContent>
     </Card>
   );
 };
