@@ -4,22 +4,26 @@ import {
   Container,
   CircularProgress,
   Grid,
+  Fab,
 } from "@mui/material";
 import PageHead from "@/components/PageHead";
 import PageFooter from "@/components/PageFooter";
 import { useEffect, useState } from "react";
 import useTasks from "@/hooks/useTasks";
+import CreateTaskDialog from "@/components/Dialogs/CreateTaskDialog";
 import EditTaskDialog from "@/components/Dialogs/EditTaskDialog";
 import TaskAccordion from "@/components/Accordions/TaskAccordion";
 import { Task } from "@/types/task.data";
+import AddIcon from "@mui/icons-material/Add";
 
 export default function Home() {
-  const { tasks, updateTask, loading, error } = useTasks();
+  const { tasks, addTask, updateTask, loading, error } = useTasks();
 
   // Local states
   const [taskList, setTaskList] = useState<Task[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // Sync taskList with tasks from the hook
   useEffect(() => {
@@ -29,6 +33,15 @@ export default function Home() {
   const handleEdit = (task: Task) => {
     setSelectedTask(task);
     setIsEditOpen(true);
+  };
+
+  const handleCreate = async (newTask: Omit<Task, "_id">) => {
+    try {
+      const createdTask = await addTask(newTask);
+      setTaskList((prev) => [...prev, createdTask]);
+    } catch (error) {
+      console.error("Failed to create task:", error);
+    }
   };
 
   const saveTask = async (updatedTask: Task) => {
@@ -45,6 +58,9 @@ export default function Home() {
 
   const groupedTasks = taskList.reduce(
     (acc, task) => {
+      if (!acc[task.status]) {
+        acc[task.status] = [];
+      }
       acc[task.status].push(task);
       return acc;
     },
@@ -130,6 +146,22 @@ export default function Home() {
             onClose={() => setIsEditOpen(false)}
             onSave={saveTask}
           />
+
+          <CreateTaskDialog
+            open={isCreateOpen}
+            onClose={() => setIsCreateOpen(false)}
+            onCreate={handleCreate}
+          />
+
+          {/* Add Button */}
+          <Fab
+            color="primary"
+            aria-label="add"
+            sx={{ position: "fixed", bottom: 36, right: 36 }}
+            onClick={() => setIsCreateOpen(true)}
+          >
+            <AddIcon />
+          </Fab>
         </Container>
 
         {/* Footer Section */}

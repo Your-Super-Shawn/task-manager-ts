@@ -1,6 +1,7 @@
 import React from "react";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
+import { TextField } from "@mui/material";
 
 interface CustomDatePickerProps {
   value: Dayjs | null;
@@ -24,6 +25,8 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
       }}
       slotProps={{
         textField: {
+          fullWidth: true,
+          variant: "standard",
           helperText: "DD/MM/YYYY",
         },
       }}
