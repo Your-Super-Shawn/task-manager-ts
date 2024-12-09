@@ -29,7 +29,7 @@ const TaskAccordion: React.FC<TaskAccordionProps> = ({
 
   return (
     <Accordion
-      defaultExpanded={taskList.length > 0}
+      defaultExpanded={true}
       sx={{
         backgroundColor: "#1e1e1e",
         color: "#ffffff",

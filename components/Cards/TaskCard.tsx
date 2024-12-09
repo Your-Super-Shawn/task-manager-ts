@@ -18,6 +18,24 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
+  // Function to handle button color by due date
+  const handleButtonColorByDueDate = (dueDate: string) => {
+    // if dueDate is not set, return "inherit"
+    if (!dueDate) return "inherit";
+
+    const today = dayjs();
+    const due = dayjs(dueDate);
+    const diff = due.diff(today, "day");
+
+    if (diff < 0) {
+      return "error";
+    } else if (diff < 3) {
+      return "warning";
+    } else {
+      return "inherit";
+    }
+  };
+
   return (
     <Card
       variant="outlined"
@@ -86,7 +104,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
         <Button
           size="small"
           variant="text"
-          color="inherit"
+          color={handleButtonColorByDueDate(task.dueDate || "")}
           startIcon={<CalendarMonthRoundedIcon />}
           sx={{
             padding: 0,
