@@ -53,6 +53,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
             textOverflow: "ellipsis",
             fontWeight: 600,
             fontSize: 13,
+            mb: 1,
           }}
         >
           {task.title}
@@ -81,6 +82,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
           }}
         />
 
+        {/* Due Date */}
         <Button
           size="small"
           variant="text"
@@ -91,10 +93,10 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
             justifyContent: "flex-start",
           }}
         >
-          {dayjs(task.dueDate).format("DD/MM/YYYY") || "No due date"}
+          {task.dueDate
+            ? dayjs(task.dueDate).format("DD/MM/YYYY")
+            : "No due date"}
         </Button>
-
-        {/* Due Date */}
       </CardContent>
     </Card>
   );

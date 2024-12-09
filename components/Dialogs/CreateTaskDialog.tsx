@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -8,104 +8,90 @@ import {
   TextField,
   MenuItem,
   Box,
-  FormHelperText,
 } from "@mui/material";
 import { Task } from "@/types/task.data";
 import DatePicker from "@/components/DateTimePicker/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { statusOptions } from "@/data/status.options";
 
-interface EditTaskDialogProps {
+interface CreateTaskDialogProps {
   open: boolean;
-  task: Task | null;
   onClose: () => void;
-  onSave: (updatedTask: Task) => void;
+  onCreate: (newTask: Omit<Task, "_id">) => void;
 }
 
 const MAX_TITLE_LENGTH = 50;
 const MAX_DESCRIPTION_LENGTH = 200;
 
-const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
+const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   open,
-  task,
   onClose,
-  onSave,
+  onCreate,
 }) => {
-  const [updatedTask, setUpdatedTask] = useState<Task | null>(task);
+  const [newTask, setNewTask] = useState<Omit<Task, "_id">>({
+    title: "",
+    description: "",
+    status: "To-do",
+    dueDate: "",
+  });
 
-  // Sync updatedTask with task when task changes
-  useEffect(() => {
-    setUpdatedTask(task);
-  }, [task]);
-
-  const handleInputChange = (field: keyof Task, value: string) => {
-    if (!updatedTask) return;
-    setUpdatedTask({ ...updatedTask, [field]: value });
+  const handleInputChange = (field: keyof Omit<Task, "_id">, value: string) => {
+    setNewTask({ ...newTask, [field]: value });
   };
 
   const handleDateChange = (newDate: Dayjs | null) => {
-    if (!updatedTask) return;
-
-    setUpdatedTask({
-      ...updatedTask,
+    setNewTask({
+      ...newTask,
       dueDate: newDate && newDate.isValid() ? newDate.toISOString() : "",
     });
   };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Edit Task</DialogTitle>
+      <DialogTitle>Create Task</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column" gap={2} mt={1}>
-          {/* Title Input */}
           <TextField
             fullWidth
             label="Title"
-            value={updatedTask?.title || ""}
+            value={newTask.title}
             onChange={(e) =>
               handleInputChange(
                 "title",
                 e.target.value.slice(0, MAX_TITLE_LENGTH)
               )
             }
-            helperText={`${
-              updatedTask?.title?.length || 0
-            }/${MAX_TITLE_LENGTH}`}
+            helperText={`${newTask.title.length}/${MAX_TITLE_LENGTH}`}
             margin="dense"
           />
 
-          {/* Description Input */}
           <TextField
             fullWidth
             label="Description"
-            value={updatedTask?.description || ""}
+            value={newTask.description}
             onChange={(e) =>
               handleInputChange(
                 "description",
                 e.target.value.slice(0, MAX_DESCRIPTION_LENGTH)
               )
             }
-            helperText={`${
-              updatedTask?.description?.length || 0
-            }/${MAX_DESCRIPTION_LENGTH}`}
+            helperText={`${newTask.description?.length}/${MAX_DESCRIPTION_LENGTH}`}
             margin="dense"
             multiline
             rows={4}
           />
 
-          {/* Due Date Picker */}
           <DatePicker
-            value={updatedTask?.dueDate ? dayjs(updatedTask.dueDate) : null}
+            value={newTask.dueDate ? dayjs(newTask.dueDate) : null}
             onChange={handleDateChange}
             label="Due Date"
           />
 
-          {/* Status Dropdown */}
           <TextField
             fullWidth
             select
             label="Status"
-            value={updatedTask?.status || "To-do"}
+            value={newTask.status}
             onChange={(e) => handleInputChange("status", e.target.value)}
           >
             {statusOptions.map((option) => (
@@ -122,18 +108,16 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
         </Button>
         <Button
           onClick={() => {
-            if (updatedTask) {
-              onSave(updatedTask);
-            }
+            onCreate(newTask);
             onClose();
           }}
           color="primary"
         >
-          Save
+          Create
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default EditTaskDialog;
+export default CreateTaskDialog;

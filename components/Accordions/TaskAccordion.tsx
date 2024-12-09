@@ -51,7 +51,7 @@ const TaskAccordion: React.FC<TaskAccordionProps> = ({
           sx={{
             display: "flex-inline",
             alignItems: "center",
-            gap: 2,
+            gap: 1,
             width: "100%",
           }}
         >
@@ -66,7 +66,7 @@ const TaskAccordion: React.FC<TaskAccordionProps> = ({
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: 2,
+            gap: 0,
           }}
         >
           {tasks.map((task) => (
