@@ -1,6 +1,8 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import localFont from "next/font/local";
+import darkTheme from "@/theme/theme";
+import { ThemeProvider, CssBaseline } from "@mui/material";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -16,8 +18,11 @@ const geistMono = localFont({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <main className={`${geistSans.variable} ${geistMono.variable}`}>
-      <Component {...pageProps} />
-    </main>
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <main className={`${geistSans.variable} ${geistMono.variable}`}>
+        <Component {...pageProps} />
+      </main>
+    </ThemeProvider>
   );
 }
