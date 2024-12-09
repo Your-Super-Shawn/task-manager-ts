@@ -8,6 +8,7 @@ import {
   TextField,
   MenuItem,
   Box,
+  FormHelperText,
 } from "@mui/material";
 import { Task } from "@/types/task.data";
 import DatePicker from "@/components/DateTimePicker/DatePicker";
@@ -34,6 +35,29 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     status: "To-do",
     dueDate: "",
   });
+  const [errors, setErrors] = useState({
+    title: "",
+    dueDate: "",
+  });
+
+  const validateFields = () => {
+    const newErrors = { title: "", dueDate: "" };
+    if (!newTask.title) {
+      newErrors.title = "Title is required.";
+    }
+    if (newTask.dueDate && !dayjs(newTask.dueDate).isValid()) {
+      newErrors.dueDate = "Invalid due date.";
+    }
+    setErrors(newErrors);
+    return !newErrors.title && !newErrors.dueDate;
+  };
+
+  const handleCreate = () => {
+    if (validateFields()) {
+      onCreate(newTask);
+      onClose();
+    }
+  };
 
   const handleInputChange = (field: keyof Omit<Task, "_id">, value: string) => {
     setNewTask({ ...newTask, [field]: value });
@@ -61,10 +85,11 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 e.target.value.slice(0, MAX_TITLE_LENGTH)
               )
             }
-            helperText={`${newTask.title.length}/${MAX_TITLE_LENGTH}`}
-            margin="dense"
+            helperText={
+              errors.title || `${newTask.title.length}/${MAX_TITLE_LENGTH}`
+            }
+            error={!!errors.title}
           />
-
           <TextField
             fullWidth
             label="Description"
@@ -76,17 +101,17 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
               )
             }
             helperText={`${newTask.description?.length}/${MAX_DESCRIPTION_LENGTH}`}
-            margin="dense"
             multiline
             rows={4}
           />
-
           <DatePicker
             value={newTask.dueDate ? dayjs(newTask.dueDate) : null}
             onChange={handleDateChange}
             label="Due Date"
           />
-
+          {errors.dueDate && (
+            <FormHelperText error>{errors.dueDate}</FormHelperText>
+          )}
           <TextField
             fullWidth
             select
@@ -106,13 +131,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         <Button onClick={onClose} color="secondary">
           Cancel
         </Button>
-        <Button
-          onClick={() => {
-            onCreate(newTask);
-            onClose();
-          }}
-          color="primary"
-        >
+        <Button onClick={handleCreate} color="primary">
           Create
         </Button>
       </DialogActions>
