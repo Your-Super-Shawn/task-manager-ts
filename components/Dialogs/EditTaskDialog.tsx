@@ -32,11 +32,34 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
   onSave,
 }) => {
   const [updatedTask, setUpdatedTask] = useState<Task | null>(task);
+  const [errors, setErrors] = useState({
+    title: "",
+    dueDate: "",
+  });
 
-  // Sync updatedTask with task when task changes
   useEffect(() => {
     setUpdatedTask(task);
+    setErrors({ title: "", dueDate: "" }); // Reset errors
   }, [task]);
+
+  const validateFields = () => {
+    const newErrors = { title: "", dueDate: "" };
+    if (!updatedTask?.title) {
+      newErrors.title = "Title is required.";
+    }
+    if (updatedTask?.dueDate && !dayjs(updatedTask.dueDate).isValid()) {
+      newErrors.dueDate = "Invalid due date.";
+    }
+    setErrors(newErrors);
+    return !newErrors.title && !newErrors.dueDate;
+  };
+
+  const handleSave = () => {
+    if (validateFields() && updatedTask) {
+      onSave(updatedTask);
+      onClose();
+    }
+  };
 
   const handleInputChange = (field: keyof Task, value: string) => {
     if (!updatedTask) return;
@@ -45,7 +68,6 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
 
   const handleDateChange = (newDate: Dayjs | null) => {
     if (!updatedTask) return;
-
     setUpdatedTask({
       ...updatedTask,
       dueDate: newDate && newDate.isValid() ? newDate.toISOString() : "",
@@ -57,7 +79,6 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
       <DialogTitle>Edit Task</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column" gap={2} mt={1}>
-          {/* Title Input */}
           <TextField
             fullWidth
             label="Title"
@@ -68,13 +89,12 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
                 e.target.value.slice(0, MAX_TITLE_LENGTH)
               )
             }
-            helperText={`${
-              updatedTask?.title?.length || 0
-            }/${MAX_TITLE_LENGTH}`}
-            margin="dense"
+            helperText={
+              errors.title ||
+              `${updatedTask?.title?.length || 0}/${MAX_TITLE_LENGTH}`
+            }
+            error={!!errors.title}
           />
-
-          {/* Description Input */}
           <TextField
             fullWidth
             label="Description"
@@ -88,19 +108,17 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
             helperText={`${
               updatedTask?.description?.length || 0
             }/${MAX_DESCRIPTION_LENGTH}`}
-            margin="dense"
             multiline
             rows={4}
           />
-
-          {/* Due Date Picker */}
           <DatePicker
             value={updatedTask?.dueDate ? dayjs(updatedTask.dueDate) : null}
             onChange={handleDateChange}
             label="Due Date"
           />
-
-          {/* Status Dropdown */}
+          {errors.dueDate && (
+            <FormHelperText error>{errors.dueDate}</FormHelperText>
+          )}
           <TextField
             fullWidth
             select
@@ -120,15 +138,7 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
         <Button onClick={onClose} color="secondary">
           Cancel
         </Button>
-        <Button
-          onClick={() => {
-            if (updatedTask) {
-              onSave(updatedTask);
-            }
-            onClose();
-          }}
-          color="primary"
-        >
+        <Button onClick={handleSave} color="primary">
           Save
         </Button>
       </DialogActions>
