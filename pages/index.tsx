@@ -1,31 +1,95 @@
-import Image from "next/image";
-import { Box, Typography, Button, Link, Container } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Container,
+  CircularProgress,
+  Grid,
+} from "@mui/material";
 import PageHead from "@/components/PageHead";
 import PageFooter from "@/components/PageFooter";
 import { useEffect, useState } from "react";
-
-type Task = {
-  _id: string;
-  title: string;
-  description?: string;
-  status: string;
-  dueDate?: string;
-};
+import useTasks from "@/hooks/useTasks";
+import TaskDataTable from "@/components/DataTable/TaskDataTable";
+import { Task } from "@/types/task.data";
+import TaskCard from "@/components/Cards/TaskCard";
+import EditTaskDialog from "@/components/Dialogs/EditTaskDialog";
+import DeleteConfirmationDialog from "@/components/Dialogs/DeleteTaskDialog";
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { tasks, addTask, updateTask, deleteTask, loading, error } = useTasks();
 
+  // Local states
+  const [taskList, setTaskList] = useState<Task[]>([]);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  // Sync taskList with tasks from the hook
   useEffect(() => {
-    async function fetchTasks() {
-      const response = await fetch("/api/tasks");
-      const data = await response.json();
+    setTaskList(tasks);
+  }, [tasks]);
 
-      console.log(data);
-      setTasks(data);
+  const handleEdit = (task: Task) => {
+    setSelectedTask(task);
+    setIsEditOpen(true);
+  };
+
+  const handleDelete = (task: Task) => {
+    setSelectedTask(task);
+    setIsDeleteOpen(true);
+  };
+
+  const saveTask = async (updatedTask: Task) => {
+    try {
+      // 调用 hook 中的 updateTask 方法以更新数据库
+      await updateTask(updatedTask._id, {
+        title: updatedTask.title,
+        description: updatedTask.description,
+        status: updatedTask.status,
+        dueDate: updatedTask.dueDate,
+      });
+
+      // 更新本地状态以同步 UI
+      setTaskList((prev) =>
+        prev.map((t) => (t._id === updatedTask._id ? updatedTask : t))
+      );
+      setIsEditOpen(false); // 关闭对话框
+    } catch (error) {
+      console.error("Failed to update task:", error);
     }
+  };
 
-    fetchTasks();
-  }, []);
+  const confirmDelete = () => {
+    if (selectedTask) {
+      setTaskList((prev) => prev.filter((t) => t._id !== selectedTask._id));
+    }
+    setIsDeleteOpen(false);
+  };
+
+  const groupedTasks = taskList.reduce(
+    (acc, task) => {
+      acc[task.status].push(task);
+      return acc;
+    },
+    { "To-do": [], "In progress": [], Completed: [] } as Record<string, Task[]>
+  );
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <>
@@ -71,21 +135,40 @@ export default function Home() {
           </Typography>
 
           {/* Task List  */}
-          <div>
-            <ul>
-              {tasks.map((task) => (
-                <li key={task._id}>
-                  <strong>{task.title}</strong>
-                  {" <> "}
-                  {task.description || "No description"}
-                  {" <> "}
-                  {task.dueDate || "No due date"}
-                  {" <> "}
-                  {task.status || "No status"}
-                </li>
+          <Box sx={{ padding: 2 }}>
+            <Grid container spacing={2}>
+              {["To-do", "In progress", "Completed"].map((status) => (
+                <Grid item xs={12} md={4} key={status}>
+                  <Typography variant="h6" gutterBottom>
+                    {status}
+                  </Typography>
+                  <Box sx={{ maxHeight: "70vh", overflowY: "auto" }}>
+                    {groupedTasks[status].map((task) => (
+                      <TaskCard
+                        key={task._id}
+                        task={task}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                      />
+                    ))}
+                  </Box>
+                </Grid>
               ))}
-            </ul>
-          </div>
+            </Grid>
+
+            <EditTaskDialog
+              open={isEditOpen}
+              task={selectedTask}
+              onClose={() => setIsEditOpen(false)}
+              onSave={saveTask}
+            />
+            <DeleteConfirmationDialog
+              open={isDeleteOpen}
+              taskTitle={selectedTask?.title || ""}
+              onClose={() => setIsDeleteOpen(false)}
+              onConfirm={confirmDelete}
+            />
+          </Box>
         </Container>
 
         {/* Footer Section */}

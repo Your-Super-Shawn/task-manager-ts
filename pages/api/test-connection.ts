@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { testMongoConnection } from "@/lib/testConnection";
+import { testMongoConnection } from "@/server/testConnection";
 
 export default async function handler(
   req: NextApiRequest,
