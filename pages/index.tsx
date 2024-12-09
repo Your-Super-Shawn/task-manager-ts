@@ -9,20 +9,17 @@ import PageHead from "@/components/PageHead";
 import PageFooter from "@/components/PageFooter";
 import { useEffect, useState } from "react";
 import useTasks from "@/hooks/useTasks";
-import TaskDataTable from "@/components/DataTable/TaskDataTable";
-import { Task } from "@/types/task.data";
-import TaskCard from "@/components/Cards/TaskCard";
 import EditTaskDialog from "@/components/Dialogs/EditTaskDialog";
-import DeleteConfirmationDialog from "@/components/Dialogs/DeleteTaskDialog";
+import TaskAccordion from "@/components/Accordions/TaskAccordion";
+import { Task } from "@/types/task.data";
 
 export default function Home() {
-  const { tasks, addTask, updateTask, deleteTask, loading, error } = useTasks();
+  const { tasks, updateTask, loading, error } = useTasks();
 
   // Local states
   const [taskList, setTaskList] = useState<Task[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   // Sync taskList with tasks from the hook
   useEffect(() => {
@@ -34,36 +31,16 @@ export default function Home() {
     setIsEditOpen(true);
   };
 
-  const handleDelete = (task: Task) => {
-    setSelectedTask(task);
-    setIsDeleteOpen(true);
-  };
-
   const saveTask = async (updatedTask: Task) => {
     try {
-      // 调用 hook 中的 updateTask 方法以更新数据库
-      await updateTask(updatedTask._id, {
-        title: updatedTask.title,
-        description: updatedTask.description,
-        status: updatedTask.status,
-        dueDate: updatedTask.dueDate,
-      });
-
-      // 更新本地状态以同步 UI
+      await updateTask(updatedTask._id, updatedTask);
       setTaskList((prev) =>
         prev.map((t) => (t._id === updatedTask._id ? updatedTask : t))
       );
-      setIsEditOpen(false); // 关闭对话框
+      setIsEditOpen(false);
     } catch (error) {
       console.error("Failed to update task:", error);
     }
-  };
-
-  const confirmDelete = () => {
-    if (selectedTask) {
-      setTaskList((prev) => prev.filter((t) => t._id !== selectedTask._id));
-    }
-    setIsDeleteOpen(false);
   };
 
   const groupedTasks = taskList.reduce(
@@ -111,7 +88,7 @@ export default function Home() {
         }}
       >
         {/* Title Section */}
-        <Container maxWidth="sm" sx={{ textAlign: "center", marginY: 4 }}>
+        <Container maxWidth="lg" sx={{ textAlign: "center", marginY: 4 }}>
           <Typography
             variant="h1"
             sx={{
@@ -134,41 +111,25 @@ export default function Home() {
             Organise your tasks efficiently with a modern interface ☺️
           </Typography>
 
-          {/* Task List  */}
-          <Box sx={{ padding: 2 }}>
-            <Grid container spacing={2}>
-              {["To-do", "In progress", "Completed"].map((status) => (
-                <Grid item xs={12} md={4} key={status}>
-                  <Typography variant="h6" gutterBottom>
-                    {status}
-                  </Typography>
-                  <Box sx={{ maxHeight: "70vh", overflowY: "auto" }}>
-                    {groupedTasks[status].map((task) => (
-                      <TaskCard
-                        key={task._id}
-                        task={task}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                      />
-                    ))}
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
+          {/* Task Accordions */}
+          <Grid container spacing={2}>
+            {Object.entries(groupedTasks).map(([status, tasks]) => (
+              <Grid item xs={12} md={4} key={status}>
+                <TaskAccordion
+                  title={status}
+                  tasks={tasks}
+                  onEdit={handleEdit}
+                />
+              </Grid>
+            ))}
+          </Grid>
 
-            <EditTaskDialog
-              open={isEditOpen}
-              task={selectedTask}
-              onClose={() => setIsEditOpen(false)}
-              onSave={saveTask}
-            />
-            <DeleteConfirmationDialog
-              open={isDeleteOpen}
-              taskTitle={selectedTask?.title || ""}
-              onClose={() => setIsDeleteOpen(false)}
-              onConfirm={confirmDelete}
-            />
-          </Box>
+          <EditTaskDialog
+            open={isEditOpen}
+            task={selectedTask}
+            onClose={() => setIsEditOpen(false)}
+            onSave={saveTask}
+          />
         </Container>
 
         {/* Footer Section */}
