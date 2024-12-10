@@ -59,6 +59,18 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     }
   };
 
+  const handleClose = () => {
+    setNewTask({
+      title: "",
+      description: "",
+      status: "To-do",
+      dueDate: "",
+    });
+    setErrors({ title: "", dueDate: "" }); // Reset errors
+
+    onClose();
+  };
+
   const handleInputChange = (field: keyof Omit<Task, "_id">, value: string) => {
     setNewTask({ ...newTask, [field]: value });
   };
@@ -71,7 +83,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>Create Task</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column" gap={2} mt={1}>
@@ -128,7 +140,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="secondary">
+        <Button onClick={handleClose} color="secondary">
           Cancel
         </Button>
         <Button onClick={handleCreate} color="primary">
