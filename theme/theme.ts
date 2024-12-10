@@ -4,10 +4,10 @@ const darkTheme = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: "#f48fb1",
+      main: "#90caf9",
     },
     secondary: {
-      main: "#90caf9",
+      main: "#f48fb1",
     },
     background: {
       default: "#171717",
@@ -19,7 +19,7 @@ const darkTheme = createTheme({
     },
   },
   typography: {
-    fontFamily: "Arial, sans-serif",
+    fontFamily: "Arial, Helvetica, sans-serif",
   },
 });
 
