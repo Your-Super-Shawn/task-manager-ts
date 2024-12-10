@@ -5,6 +5,9 @@ import {
   CircularProgress,
   Grid,
   Fab,
+  Snackbar,
+  Alert,
+  Slide,
 } from "@mui/material";
 import PageHead from "@/components/PageHead";
 import PageFooter from "@/components/PageFooter";
@@ -17,7 +20,16 @@ import { Task } from "@/types/task.data";
 import AddIcon from "@mui/icons-material/Add";
 
 export default function Home() {
-  const { tasks, addTask, updateTask, deleteTask, loading, error } = useTasks();
+  const {
+    tasks,
+    addTask,
+    updateTask,
+    deleteTask,
+    loading,
+    error,
+    snackbar,
+    setSnackbar,
+  } = useTasks();
 
   // Local states
   const [taskList, setTaskList] = useState<Task[]>([]);
@@ -66,6 +78,14 @@ export default function Home() {
     },
     { "To-do": [], "In progress": [], Completed: [] } as Record<string, Task[]>
   );
+
+  const handleCloseSnackbar = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") return; // Prevent closing when clicking outside
+    setSnackbar(null); // Clear the snackbar state
+  };
 
   if (loading) {
     return (
@@ -132,7 +152,7 @@ export default function Home() {
             {Object.entries(groupedTasks).map(([status, tasks]) => (
               <Grid item xs={12} md={4} key={status}>
                 <TaskAccordion
-                  key={status}
+                  key={tasks[0]?._id}
                   title={status}
                   tasks={tasks}
                   onEdit={handleEdit}
@@ -154,6 +174,21 @@ export default function Home() {
             onClose={() => setIsCreateOpen(false)}
             onCreate={handleCreate}
           />
+
+          {/* Snackbar */}
+          {snackbar && (
+            <Snackbar
+              open={!!snackbar} // Open when snackbar is not null
+              autoHideDuration={2500}
+              onClose={handleCloseSnackbar}
+              TransitionComponent={Slide}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            >
+              <Alert onClose={handleCloseSnackbar} severity={snackbar.type}>
+                {snackbar.message}
+              </Alert>
+            </Snackbar>
+          )}
 
           {/* Add Button */}
           <Fab
