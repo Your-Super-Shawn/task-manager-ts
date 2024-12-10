@@ -26,7 +26,6 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
       slotProps={{
         textField: {
           fullWidth: true,
-          variant: "standard",
           helperText: "DD/MM/YYYY",
         },
       }}
