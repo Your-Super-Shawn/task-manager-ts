@@ -9,6 +9,7 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  useMediaQuery,
 } from "@mui/material";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
@@ -23,6 +24,9 @@ interface TaskCardProps {
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  // Check if the device is mobile
+  const isMobile = useMediaQuery("(max-width:600px)");
 
   // Open the menu
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -94,7 +98,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
           position: "absolute",
           top: 8,
           right: 8,
-          opacity: 0,
+          opacity: isMobile ? 1 : 0, // Always visible on mobile
           color: "#ffff",
           transition: "opacity 0.3s ease",
         }}
