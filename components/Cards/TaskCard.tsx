@@ -6,7 +6,6 @@ import {
   Divider,
   Button,
   Box,
-  CardActions,
 } from "@mui/material";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import type { Task } from "@/types/task.data";
@@ -28,11 +27,35 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
     const diff = due.diff(today, "day");
 
     if (diff < 0) {
+      // if due date is passed
       return "error";
     } else if (diff < 3) {
+      // if due date is within 3 days
       return "warning";
     } else {
+      // if due date is more than 3 days
       return "inherit";
+    }
+  };
+
+  // Function to get day left
+  const getDayLeft = (dueDate: string) => {
+    if (!dueDate) return "";
+
+    const today = dayjs();
+    const due = dayjs(dueDate);
+    const diff = due.diff(today, "day");
+
+    if (diff < 0) {
+      return `Expired ${Math.abs(diff)} days ago`;
+    } else if (diff === 0) {
+      return "Due today";
+    } else if (diff === 1) {
+      return "Due tomorrow";
+    } else if (diff > 1) {
+      return `Due in ${diff} days`;
+    } else {
+      return "";
     }
   };
 
@@ -40,23 +63,22 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
     <Card
       variant="outlined"
       sx={{
-        display: "flex",
-        alignItems: "center",
         margin: "8px",
         backgroundColor: "#1e1e1e",
         color: "#ffffff",
         ":hover": {
           boxShadow: "0 4px 12px rgba(255, 255, 255, 0.2)",
         },
-        paddingBottom: "-10px",
       }}
     >
       <CardContent
         sx={{
-          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          padding: "16px",
+          gap: "8px",
           cursor: "pointer",
-          padding: "12px",
-          paddingTop: 3,
         }}
         onClick={() => onEdit(task)}
       >
@@ -71,7 +93,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
             textOverflow: "ellipsis",
             fontWeight: 600,
             fontSize: 13,
-            mb: 1,
           }}
         >
           {task.title}
@@ -81,6 +102,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
         <Typography
           variant="body2"
           color="text.secondary"
+          align="left"
           sx={{
             overflow: "hidden",
             display: "-webkit-box",
@@ -97,24 +119,46 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
         <Divider
           sx={{
             marginY: 1,
+            width: "100%",
           }}
         />
 
-        {/* Due Date */}
-        <Button
-          size="small"
-          variant="text"
-          color={handleButtonColorByDueDate(task.dueDate || "")}
-          startIcon={<CalendarMonthRoundedIcon />}
+        {/* Due Date and Placeholder */}
+        <Box
           sx={{
-            padding: 0,
-            justifyContent: "flex-start",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
           }}
         >
-          {task.dueDate
-            ? dayjs(task.dueDate).format("DD/MM/YYYY")
-            : "No due date"}
-        </Button>
+          <Button
+            size="small"
+            variant="text"
+            color={handleButtonColorByDueDate(task.dueDate || "")}
+            startIcon={<CalendarMonthRoundedIcon />}
+            sx={{
+              padding: 0,
+              justifyContent: "flex-start",
+              textTransform: "none",
+            }}
+          >
+            {task.dueDate
+              ? dayjs(task.dueDate).format("DD/MM/YYYY")
+              : "No due date"}
+          </Button>
+          {/* Placeholder */}
+          <Typography
+            variant="caption"
+            color={handleButtonColorByDueDate(task.dueDate || "")}
+            sx={{
+              fontSize: 12,
+              textAlign: "right",
+            }}
+          >
+            {getDayLeft(task.dueDate || "")}
+          </Typography>
+        </Box>
       </CardContent>
     </Card>
   );
