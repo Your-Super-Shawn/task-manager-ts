@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Accordion,
   AccordionSummary,
@@ -23,19 +22,12 @@ const TaskAccordion: React.FC<TaskAccordionProps> = ({
   onEdit,
   onDelete,
 }) => {
-  const [taskList, setTaskList] = useState<Task[]>(tasks);
-
   // Map titles to corresponding emojis
   const titleToEmoji: Record<string, string> = {
     "To-do": "📋",
     "In progress": "✍️",
     Completed: "✅",
   };
-
-  // Update task list when tasks prop changes
-  useEffect(() => {
-    setTaskList(tasks);
-  }, [tasks]);
 
   return (
     <Accordion
@@ -87,6 +79,17 @@ const TaskAccordion: React.FC<TaskAccordionProps> = ({
               onDelete={onDelete}
             />
           ))}
+          {tasks.length === 0 && (
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+                fontStyle: "italic",
+              }}
+            >
+              {`No tasks here`}
+            </Typography>
+          )}
         </Box>
       </AccordionDetails>
     </Accordion>
