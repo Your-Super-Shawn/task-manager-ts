@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -14,6 +14,7 @@ import { Task } from "@/types/task.data";
 import DatePicker from "@/components/DateTimePicker/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { statusOptions } from "@/data/status.options";
+import debounce from "lodash/debounce";
 
 interface CreateTaskDialogProps {
   open: boolean;
@@ -40,11 +41,24 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     dueDate: "",
   });
 
+  useEffect(() => {
+    if (!open) {
+      setNewTask({
+        title: "",
+        description: "",
+        status: "To-do",
+        dueDate: "",
+      });
+      setErrors({ title: "", dueDate: "" }); // Reset errors
+    }
+  }, [open]);
+
   const validateFields = () => {
     const newErrors = { title: "", dueDate: "" };
     if (!newTask.title) {
       newErrors.title = "Title is required.";
     }
+
     if (newTask.dueDate && !dayjs(newTask.dueDate).isValid()) {
       newErrors.dueDate = "Invalid due date.";
     }
@@ -52,12 +66,13 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     return !newErrors.title && !newErrors.dueDate;
   };
 
-  const handleCreate = () => {
+  // Debounced `handleCreate`
+  const handleCreate = debounce(() => {
     if (validateFields()) {
       onCreate(newTask);
-      onClose();
+      handleClose();
     }
-  };
+  }, 300);
 
   const handleClose = () => {
     setNewTask({

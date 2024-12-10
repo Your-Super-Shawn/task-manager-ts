@@ -1,3 +1,4 @@
+import { useEffect, useState, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -9,15 +10,15 @@ import {
   Alert,
   Slide,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import PageHead from "@/components/PageHead";
 import PageFooter from "@/components/PageFooter";
-import { useEffect, useState } from "react";
 import useTasks from "@/hooks/useTasks";
 import CreateTaskDialog from "@/components/Dialogs/CreateTaskDialog";
 import EditTaskDialog from "@/components/Dialogs/EditTaskDialog";
 import TaskAccordion from "@/components/Accordions/TaskAccordion";
 import { Task } from "@/types/task.data";
-import AddIcon from "@mui/icons-material/Add";
+import debounce from "lodash/debounce";
 
 export default function Home() {
   const {
@@ -42,32 +43,62 @@ export default function Home() {
     setTaskList(tasks);
   }, [tasks]);
 
-  const handleEdit = (task: Task) => {
+  // Debounced `handleCreate`
+  const handleCreate = useCallback(
+    debounce(async (newTask: Omit<Task, "_id">) => {
+      try {
+        const createdTask = await addTask(newTask);
+        setTaskList((prev) => [...prev, createdTask]);
+      } catch (error) {
+        console.error("Failed to create task:", error);
+      }
+    }, 300),
+    [addTask]
+  );
+
+  // Debounced `handleSave`
+  const handleSave = useCallback(
+    debounce(async (updatedTask: Task) => {
+      try {
+        await updateTask(updatedTask._id, updatedTask);
+        setTaskList((prev) =>
+          prev.map((t) => (t._id === updatedTask._id ? updatedTask : t))
+        );
+        setIsEditOpen(false);
+      } catch (error) {
+        console.error("Failed to update task:", error);
+      }
+    }, 300),
+    [updateTask]
+  );
+
+  // Debounced `handleDelete`
+  const handleDelete = useCallback(
+    debounce(async (taskId: string) => {
+      try {
+        await deleteTask(taskId);
+        setTaskList((prev) => prev.filter((t) => t._id !== taskId));
+      } catch (error) {
+        console.error("Failed to delete task:", error);
+      }
+    }, 300),
+    [deleteTask]
+  );
+
+  const handleEditClicked = (task: Task) => {
     setSelectedTask(task);
     setIsEditOpen(true);
   };
 
-  const handleCreate = async (newTask: Omit<Task, "_id">) => {
-    try {
-      const createdTask = await addTask(newTask);
-      setTaskList((prev) => [...prev, createdTask]);
-    } catch (error) {
-      console.error("Failed to create task:", error);
-    }
+  const handleCloseSnackbar = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") return; // Prevent closing when clicking outside
+    setSnackbar(null); // Clear the snackbar state
   };
 
-  const saveTask = async (updatedTask: Task) => {
-    try {
-      await updateTask(updatedTask._id, updatedTask);
-      setTaskList((prev) =>
-        prev.map((t) => (t._id === updatedTask._id ? updatedTask : t))
-      );
-      setIsEditOpen(false);
-    } catch (error) {
-      console.error("Failed to update task:", error);
-    }
-  };
-
+  // Group tasks by status
   const groupedTasks = taskList.reduce(
     (acc, task) => {
       if (!acc[task.status]) {
@@ -78,14 +109,6 @@ export default function Home() {
     },
     { "To-do": [], "In progress": [], Completed: [] } as Record<string, Task[]>
   );
-
-  const handleCloseSnackbar = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") return; // Prevent closing when clicking outside
-    setSnackbar(null); // Clear the snackbar state
-  };
 
   if (loading) {
     return (
@@ -155,8 +178,8 @@ export default function Home() {
                   key={tasks[0]?._id}
                   title={status}
                   tasks={tasks}
-                  onEdit={handleEdit}
-                  onDelete={deleteTask}
+                  onEdit={handleEditClicked}
+                  onDelete={handleDelete}
                 />
               </Grid>
             ))}
@@ -166,7 +189,7 @@ export default function Home() {
             open={isEditOpen}
             task={selectedTask}
             onClose={() => setIsEditOpen(false)}
-            onSave={saveTask}
+            onSave={handleSave}
           />
 
           <CreateTaskDialog
