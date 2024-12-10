@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -6,20 +6,36 @@ import {
   Divider,
   Button,
   Box,
+  IconButton,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
+import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 import type { Task } from "@/types/task.data";
 import dayjs from "dayjs";
 
 interface TaskCardProps {
   task: Task;
   onEdit: (task: Task) => void;
+  onDelete: (taskId: string) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  // Open the menu
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  // Close the menu
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   // Function to handle button color by due date
   const handleButtonColorByDueDate = (dueDate: string) => {
-    // if dueDate is not set, return "inherit"
     if (!dueDate) return "inherit";
 
     const today = dayjs();
@@ -27,13 +43,10 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
     const diff = due.diff(today, "day");
 
     if (diff < 0) {
-      // if due date is passed
       return "error";
     } else if (diff < 3) {
-      // if due date is within 3 days
       return "warning";
     } else {
-      // if due date is more than 3 days
       return "inherit";
     }
   };
@@ -52,10 +65,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
       return "Due today";
     } else if (diff === 1) {
       return "Due tomorrow";
-    } else if (diff > 1) {
-      return `Due in ${diff} days`;
     } else {
-      return "";
+      return `Due in ${diff} days`;
     }
   };
 
@@ -68,23 +79,59 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
         color: "#ffffff",
         ":hover": {
           boxShadow: "0 4px 12px rgba(255, 255, 255, 0.2)",
+          ".icon-button": {
+            opacity: 1,
+          },
         },
+        position: "relative",
       }}
     >
+      {/* IconButton for Actions */}
+      <IconButton
+        className="icon-button"
+        size="small"
+        sx={{
+          position: "absolute",
+          top: 8,
+          right: 8,
+          opacity: 0,
+          color: "#ffff",
+          transition: "opacity 0.3s ease",
+        }}
+        onClick={handleMenuOpen}
+      >
+        <MoreHorizRoundedIcon color="inherit" />
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem
+          onClick={() => {
+            handleMenuClose();
+            onDelete(task._id);
+          }}
+        >
+          Delete
+        </MenuItem>
+      </Menu>
+
       <CardContent
         sx={{
           display: "flex",
           flexDirection: "column",
-          alignItems: "flex-start",
           padding: "16px",
           gap: "8px",
           cursor: "pointer",
+          // position: "relative",
         }}
         onClick={() => onEdit(task)}
       >
         {/* Title */}
         <Typography
           gutterBottom
+          align="left"
           sx={{
             overflow: "hidden",
             display: "-webkit-box",
@@ -93,6 +140,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit }) => {
             textOverflow: "ellipsis",
             fontWeight: 600,
             fontSize: 13,
+            marginRight: 4,
           }}
         >
           {task.title}
