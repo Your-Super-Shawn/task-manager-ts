@@ -61,6 +61,11 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
     }
   };
 
+  const handleClose = () => {
+    setUpdatedTask(task); // Reset to original task
+    onClose();
+  };
+
   const handleInputChange = (field: keyof Task, value: string) => {
     if (!updatedTask) return;
     setUpdatedTask({ ...updatedTask, [field]: value });
@@ -75,7 +80,7 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>Edit Task</DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column" gap={2} mt={1}>
@@ -135,7 +140,7 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="secondary">
+        <Button onClick={handleClose} color="secondary">
           Cancel
         </Button>
         <Button onClick={handleSave} color="primary">

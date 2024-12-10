@@ -14,12 +14,14 @@ interface TaskAccordionProps {
   title: string;
   tasks: Task[];
   onEdit: (task: Task) => void;
+  onDelete: (taskId: string) => void;
 }
 
 const TaskAccordion: React.FC<TaskAccordionProps> = ({
   title,
   tasks,
   onEdit,
+  onDelete,
 }) => {
   const [taskList, setTaskList] = useState<Task[]>(tasks);
 
@@ -27,7 +29,7 @@ const TaskAccordion: React.FC<TaskAccordionProps> = ({
   const titleToEmoji: Record<string, string> = {
     "To-do": "📋",
     "In progress": "✍️",
-    "Completed": "✅",
+    Completed: "✅",
   };
 
   // Update task list when tasks prop changes
@@ -65,10 +67,8 @@ const TaskAccordion: React.FC<TaskAccordionProps> = ({
         >
           {/* Title with Emoji */}
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            {`${titleToEmoji[title] || ""} ${title}`}
+            {`${titleToEmoji[title] || ""} ${title} (${tasks.length})`}
           </Typography>
-          {/* Task Count */}
-          <Typography variant="body2">{tasks.length}</Typography>
         </Box>
       </AccordionSummary>
       <AccordionDetails>
@@ -80,7 +80,12 @@ const TaskAccordion: React.FC<TaskAccordionProps> = ({
           }}
         >
           {tasks.map((task) => (
-            <TaskCard key={task._id} task={task} onEdit={onEdit} />
+            <TaskCard
+              key={task._id}
+              task={task}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
           ))}
         </Box>
       </AccordionDetails>
