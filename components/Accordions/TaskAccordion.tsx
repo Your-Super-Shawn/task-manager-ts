@@ -23,6 +23,14 @@ const TaskAccordion: React.FC<TaskAccordionProps> = ({
 }) => {
   const [taskList, setTaskList] = useState<Task[]>(tasks);
 
+  // Map titles to corresponding emojis
+  const titleToEmoji: Record<string, string> = {
+    "To-do": "📋",
+    "In progress": "✍️",
+    "Completed": "✅",
+  };
+
+  // Update task list when tasks prop changes
   useEffect(() => {
     setTaskList(tasks);
   }, [tasks]);
@@ -49,15 +57,17 @@ const TaskAccordion: React.FC<TaskAccordionProps> = ({
       >
         <Box
           sx={{
-            display: "flex-inline",
+            display: "flex",
             alignItems: "center",
             gap: 1,
             width: "100%",
           }}
         >
+          {/* Title with Emoji */}
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            {title}
+            {`${titleToEmoji[title] || ""} ${title}`}
           </Typography>
+          {/* Task Count */}
           <Typography variant="body2">{tasks.length}</Typography>
         </Box>
       </AccordionSummary>
@@ -66,7 +76,7 @@ const TaskAccordion: React.FC<TaskAccordionProps> = ({
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: 0,
+            gap: 1,
           }}
         >
           {tasks.map((task) => (
