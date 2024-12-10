@@ -17,7 +17,7 @@ import { Task } from "@/types/task.data";
 import AddIcon from "@mui/icons-material/Add";
 
 export default function Home() {
-  const { tasks, addTask, updateTask, loading, error } = useTasks();
+  const { tasks, addTask, updateTask, deleteTask, loading, error } = useTasks();
 
   // Local states
   const [taskList, setTaskList] = useState<Task[]>([]);
@@ -132,9 +132,11 @@ export default function Home() {
             {Object.entries(groupedTasks).map(([status, tasks]) => (
               <Grid item xs={12} md={4} key={status}>
                 <TaskAccordion
+                  key={status}
                   title={status}
                   tasks={tasks}
                   onEdit={handleEdit}
+                  onDelete={deleteTask}
                 />
               </Grid>
             ))}

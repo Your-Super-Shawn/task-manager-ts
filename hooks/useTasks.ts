@@ -17,12 +17,12 @@ export default function useTasks(pollingInterval: number = 10000) {
       }
       const newTasks = await response.json();
 
+      console.log("Fetched tasks:", newTasks);
+
       // Compare and update tasks only if different
-      setTasks((prevTasks) => {
-        const prevIds = new Set(prevTasks.map((t) => t._id));
-        const hasNewData = newTasks.some((t: Task) => !prevIds.has(t._id));
-        return hasNewData ? newTasks : prevTasks;
-      });
+      if (JSON.stringify(tasks) !== JSON.stringify(newTasks)) {
+        setTasks(newTasks);
+      }
     } catch (err) {
       console.error(err);
       setError("Failed to load tasks");
