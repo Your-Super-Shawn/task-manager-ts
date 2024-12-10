@@ -35,23 +35,31 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
   const [errors, setErrors] = useState({
     title: "",
     dueDate: "",
+    noChangeFlag: false,
   });
 
   useEffect(() => {
     setUpdatedTask(task);
-    setErrors({ title: "", dueDate: "" }); // Reset errors
+    setErrors({ title: "", dueDate: "", noChangeFlag: false });
   }, [task]);
 
   const validateFields = () => {
-    const newErrors = { title: "", dueDate: "" };
+    const newErrors = { title: "", dueDate: "", noChangeFlag: false };
+    // Compare with old task to prevent unnecessary validation
+    if (!updatedTask || updatedTask === task) {
+      newErrors.noChangeFlag = true;
+    }
+
+    // Validate title
     if (!updatedTask?.title) {
       newErrors.title = "Title is required.";
     }
+    // Validate due date
     if (updatedTask?.dueDate && !dayjs(updatedTask.dueDate).isValid()) {
       newErrors.dueDate = "Invalid due date.";
     }
     setErrors(newErrors);
-    return !newErrors.title && !newErrors.dueDate;
+    return !newErrors.title && !newErrors.dueDate && !newErrors.noChangeFlag;
   };
 
   const handleSave = () => {
@@ -137,6 +145,12 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
               </MenuItem>
             ))}
           </TextField>
+
+          {errors.noChangeFlag && (
+            <FormHelperText error>
+              No changes made. Close the dialog to continue.
+            </FormHelperText>
+          )}
         </Box>
       </DialogContent>
       <DialogActions>

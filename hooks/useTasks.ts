@@ -3,10 +3,16 @@ import type { Task } from "@/types/task.data";
 
 export type NewTask = Omit<Task, "_id">;
 
+interface SnackbarState {
+  message: string;
+  type: "success" | "error";
+}
+
 export default function useTasks(pollingInterval: number = 10000) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [snackbar, setSnackbar] = useState<SnackbarState | null>(null);
 
   // Fetch tasks from the server
   const fetchTasks = async () => {
@@ -26,6 +32,7 @@ export default function useTasks(pollingInterval: number = 10000) {
     } catch (err) {
       console.error(err);
       setError("Failed to load tasks");
+      setSnackbar({ message: "Failed to load tasks", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -46,10 +53,12 @@ export default function useTasks(pollingInterval: number = 10000) {
       }
       const createdTask = await response.json();
       await fetchTasks(); // Refresh tasks after adding
+      setSnackbar({ message: "Task added successfully", type: "success" });
       return createdTask;
     } catch (err) {
       console.error(err);
       setError("Failed to add task");
+      setSnackbar({ message: "Failed to add task", type: "error" });
     }
   };
 
@@ -67,9 +76,11 @@ export default function useTasks(pollingInterval: number = 10000) {
         throw new Error(`Error updating task: ${response.statusText}`);
       }
       await fetchTasks(); // Refresh tasks after updating
+      setSnackbar({ message: "Task updated successfully", type: "success" });
     } catch (err) {
       console.error(err);
       setError("Failed to update task");
+      setSnackbar({ message: "Failed to update task", type: "error" });
     }
   };
 
@@ -87,9 +98,11 @@ export default function useTasks(pollingInterval: number = 10000) {
         throw new Error(`Error deleting task: ${response.statusText}`);
       }
       await fetchTasks(); // Refresh tasks after deleting
+      setSnackbar({ message: "Task deleted successfully", type: "success" });
     } catch (err) {
       console.error(err);
       setError("Failed to delete task");
+      setSnackbar({ message: "Failed to delete task", type: "error" });
     }
   };
 
@@ -102,5 +115,15 @@ export default function useTasks(pollingInterval: number = 10000) {
     return () => clearInterval(interval);
   }, [pollingInterval]);
 
-  return { tasks, loading, error, fetchTasks, addTask, updateTask, deleteTask };
+  return {
+    tasks,
+    loading,
+    error,
+    fetchTasks,
+    addTask,
+    updateTask,
+    deleteTask,
+    snackbar,
+    setSnackbar,
+  };
 }
