@@ -1,40 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# ✍️ Task Manager | Playground
+
+A lightweight app built using Next.js, TypeScript and MongoDB, designed primarily for managing tasks and performing CRUD operations.
+
+## Overview
+
+This project serves as a simple, user-friendly interface for the task manager application. It allows users to:
+
+- Create, Update, Read and Delete (CRUD) operations for task entries
+- Storing and removing task from the database
+- Status-based filtering of tasks (To-do, In Progress, Completed)
+
+The app is built using Next.js, a React framework that enables server-side rendering and static site generation. It uses TypeScript for static types, MongoDB for data storage, and Material-UI for styling components. The front-end server (next.js) is connected to the MongoDB server using the `mongoose` library.
+
+## Technologies
+
+| Technology | Purpose                                                      | Version |
+| ---------- | ------------------------------------------------------------ | ------- |
+| Next.js    | Creating the web application with server-rendered components | 15.0,.4 |
+| TypeScript | Static types to improve code quality and maintainability     | 5       |
+| MUI        | React component library for building user interfaces         | 6.1.10  |
+| mongodb    | NoSQL database used for storing data                         | 6.11.0  |
+| dayjs      | Library for date and time manipulation                       | 1.11.13 |
+| lodash     | Utility library for simplifying JavaScript operations        | 4.17.21 |
+| Jest       | Testing framework for unit and integration tests             | 27.4.7  |
 
 ## Getting Started
 
-First, run the development server:
+Note -> Don't forget to configure `.env.local` file in your local environemnt for `MONGO_DB_URL`, otherwise it will fail to connect to the databse.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Clone the repository:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   ```sh
+   git clone https://github.com/Your-Super-Shawn/task-manager-ts.git
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+   cd task-manager-ts
+   ```
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+2. Install dependencies:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+   ```sh
+   npm install
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Start the development server:
 
-## Learn More
+   ```sh
+   npm run dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+4. (Optional) Run the test cases in local terminal
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+   ```sh
+   npx jest
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. Open your browser and visit [http://localhost:3000](http://localhost:3000)
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `components`: Contains React components used in the application
+- `data`: Contains the data model for the application
+- `hooks`: Contains custom React hooks
+- `pages`: Contains the Next.js pages for the application
+- `public`: Contains static assets for the application
+- `server`: Contains configuration for the connection of MongoDB server
+- `styles`: Contains global styles for the application
+- `theme`: Contains MUI theme configuration
+- `types`: Contains TypeScript types and interfaces
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+### Enjoy testing! 🚀
